@@ -18,6 +18,7 @@ export class Player {
     this.sprite.width = FACE_SIZE
     this.sprite.height = FACE_SIZE
     this.sprite.anchor.set(0.5)
+    this.sprite.scale.x = -1  // mirror horizontally for natural selfie view
 
     const mask = new PIXI.Graphics()
     mask.circle(0, 0, FACE_SIZE / 2).fill({ color: 0xffffff })
