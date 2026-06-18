@@ -1,0 +1,12 @@
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  server: { port: 3000 },
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
+  },
+  optimizeDeps: {
+    exclude: ['@mediapipe/tasks-vision'],
+  },
+})
