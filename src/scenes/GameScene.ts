@@ -31,10 +31,10 @@ export class GameScene implements Scene {
   private projectileSprites: SpriteMap<Projectile> = new Map()
   private itemSprites: SpriteMap<Item> = new Map()
   private trailParticles: TrailParticle[] = []
-  private faceDetected = true
+  private ready = true  // 얼굴 인식 + 정면 응시 상태
   private resumeCountdownStart: number | null = null
   private fireTimer = 0
-  private ticker: PIXI.Ticker
+  private tickFn: (ticker: PIXI.Ticker) => void
   private score = 0
   private isFever = false
 
@@ -80,26 +80,33 @@ export class GameScene implements Scene {
     })
     this.loop.start()
 
-    this.ticker = app.ticker.add((ticker) => this.tick(ticker.deltaMS))
+    // 공유 앱 티커에 콜백만 등록 — destroy 시 콜백만 제거(티커 자체는 보존)
+    this.tickFn = (ticker) => this.tick(ticker.deltaMS)
+    app.ticker.add(this.tickFn)
   }
 
   private tick(deltaMs: number): void {
     const now = performance.now()
     const face = this.tracker.detect(now)
+    // 얼굴이 인식되고 + 정면을 응시해야 게임 진행
+    const ready = face.detected && face.facingForward
 
-    if (!face.detected) {
-      if (this.faceDetected) {
-        this.faceDetected = false
+    if (!ready) {
+      if (this.ready) {
+        this.ready = false
         this.loop.pause()
-        this.hud.showFaceNotDetected(true)
+        const msg = face.detected
+          ? '정면을 바라봐 주세요'
+          : '얼굴이 인식되지 않습니다'
+        this.hud.showFaceNotDetected(true, msg)
         this.resumeCountdownStart = null
       }
-      this.updateTrails(deltaMs)
+      this.renderFx(deltaMs)
       return
     }
 
-    if (!this.faceDetected) {
-      this.faceDetected = true
+    if (!this.ready) {
+      this.ready = true
       this.hud.showFaceNotDetected(false)
       this.resumeCountdownStart = now
     }
@@ -109,7 +116,7 @@ export class GameScene implements Scene {
       const remain = (GAME.RESUME_COUNTDOWN_MS - elapsed) / 1000
       if (remain > 0) {
         this.hud.showCountdown(remain)
-        this.updateTrails(deltaMs)
+        this.renderFx(deltaMs)
         return
       }
       this.hud.showCountdown(0)
@@ -125,7 +132,13 @@ export class GameScene implements Scene {
 
     this.loop.update(deltaMs, face.yaw, this.player.getBounds())
     this.syncSprites()
+    this.renderFx(deltaMs)
+  }
+
+  // 매 프레임 시각 이펙트 갱신 (게임 진행/일시정지 무관)
+  private renderFx(deltaMs: number): void {
     this.updateTrails(deltaMs)
+    this.hud.updateFever(deltaMs)
   }
 
   private syncSprites(): void {
@@ -278,7 +291,7 @@ export class GameScene implements Scene {
   }
 
   destroy(): void {
-    this.ticker.destroy()
+    this.app.ticker.remove(this.tickFn)
     this.loop.stop()
     this.player.destroy()
     this.hud.destroy()
