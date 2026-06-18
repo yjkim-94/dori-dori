@@ -72,7 +72,7 @@ export class GameScene implements Scene {
       onItemAdded: (i) => this.addItemSprite(i),
       onItemRemoved: (i) => this.removeSprite(this.itemSprites, i),
       onBuffApplied: (_b: BuffType) => {},
-      onGameOver: () => this.onGameOverCb(this.score),
+      onGameOver: () => setTimeout(() => this.onGameOverCb(this.score), 0),
       onFeverChange: (active) => {
         this.isFever = active
         this.hud.setFeverBorder(active)
@@ -120,7 +120,7 @@ export class GameScene implements Scene {
     this.fireTimer += deltaMs
     if (this.fireTimer >= this.loop.currentFireInterval) {
       this.fireTimer = 0
-      this.loop.fire(this.player.crownX, this.player.crownY, face.yaw)
+      this.loop.fire(this.player.crownX, this.player.crownY, -face.yaw)
     }
 
     this.loop.update(deltaMs, face.yaw, this.player.getBounds())

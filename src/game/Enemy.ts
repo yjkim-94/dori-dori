@@ -3,17 +3,17 @@ import { SCORE, ENEMY_HP } from '../constants'
 export type EnemyType = 'normal' | 'heavy' | 'zigzag' | 'boss'
 
 const SPEEDS: Record<EnemyType, number> = {
-  normal: 0.18,
-  heavy: 0.12,
-  zigzag: 0.15,
-  boss: 0.07,
+  normal: 0.09,
+  heavy: 0.06,
+  zigzag: 0.075,
+  boss: 0.035,
 }
 
 const SIZES: Record<EnemyType, { w: number; h: number }> = {
-  normal: { w: 36, h: 36 },
-  heavy:  { w: 48, h: 48 },
-  zigzag: { w: 32, h: 32 },
-  boss:   { w: 72, h: 72 },
+  normal: { w: 72,  h: 72  },
+  heavy:  { w: 96,  h: 96  },
+  zigzag: { w: 64,  h: 64  },
+  boss:   { w: 144, h: 144 },
 }
 
 abstract class EnemyBase {
