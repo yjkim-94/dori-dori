@@ -15,10 +15,15 @@ export class Player {
 
     const videoTexture = PIXI.Texture.from(video as unknown as HTMLImageElement)
     this.sprite = new PIXI.Sprite(videoTexture)
-    this.sprite.width = FACE_SIZE
-    this.sprite.height = FACE_SIZE
     this.sprite.anchor.set(0.5)
-    this.sprite.scale.x = -1  // mirror horizontally for natural selfie view
+
+    // 비율 유지 (object-fit: cover) — 짧은 쪽을 FACE_SIZE에 맞추고 긴 쪽은 마스크로 잘림
+    const vw = video.videoWidth || 640
+    const vh = video.videoHeight || 480
+    const coverScale = FACE_SIZE / Math.min(vw, vh)
+    // scale.x 음수로 미러링 적용
+    this.sprite.scale.set(coverScale)
+    this.sprite.scale.x = -coverScale
 
     const mask = new PIXI.Graphics()
     mask.circle(0, 0, FACE_SIZE / 2).fill({ color: 0xffffff })

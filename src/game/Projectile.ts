@@ -21,7 +21,8 @@ export class Projectile {
     this.y = y
     this.damage = damage
     this.radius = BASE_RADIUS * radiusMultiplier
-    const clampedYaw = Math.max(-40, Math.min(40, yawDeg))
+    const amplified = yawDeg * 3.0  // 감도 3배 증폭
+    const clampedYaw = Math.max(-60, Math.min(60, amplified))
     const rad = (clampedYaw * Math.PI) / 180
     this.vx = Math.sin(rad) * SPEED
     this.vy = -Math.cos(rad) * SPEED
